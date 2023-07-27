@@ -1,85 +1,100 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+  import { RouterView, RouterLink } from 'vue-router'
+  import {usersStore} from './stores/auth'
+
+  const user = usersStore()
+
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <nav>
+    <ul
+      v-if="user.userLogin"
+    >
+      <li>
+          <RouterLink
+            class="router"
+            :to="{name:'tus-archivos'}"
+          >
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+            Tus archivos
+          </RouterLink>
+        </li>
+        <li 
+          class="logout"
+          @click="user.logout"
+        >
+          <a ><p>Cerrar sesion</p></a>
+        </li>
+    </ul>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+    <ul
+      v-else
+    >
+      <li>
+        <RouterLink
+          class="router"
+          :to="{name:'login'}"
+        >
 
-  <RouterView />
+          Login
+        </RouterLink>
+      </li>
+      <li>
+        <RouterLink
+          class="router"
+          :to="{name:'registro'}"
+        >
+
+          Register
+        </RouterLink></li>
+      
+
+      <li>
+       
+      </li>
+    </ul>
+  </nav>
+
+  <div>  
+    <RouterView />
+  </div>
+ 
+
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+<style>
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
+  li {
+    float: left;
   }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+  li, .router {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
   }
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  /* Change the link color to #111 (black) on hover */
+  li a:hover {
+    background-color: #111;
   }
-}
+
+  .logout {
+    cursor: pointer;
+    padding: 14px 16px;
+  }
+
+  .logout :hover {
+    color: red;
+    
+  }
 </style>
