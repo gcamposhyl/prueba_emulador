@@ -49,21 +49,13 @@ if(isFetched){
 }
 
 // Create a storage reference from our storage service
-const storageRef = ref(storage);
+//const storageRef = ref(storage);
 const imagesRef = ref(storage, 'imagenes');
 
 //Ejemplo consumir function en emulador
 const name = "Gabrielca"; // Cambia el nombre aquí
 const url = `http://127.0.0.1:5001/gabriellab-876b3/us-central1/getAllFiles?name=${encodeURIComponent(name)}`;
 const dataToSend = { key1: 'value1', key2: 'value2' }; // El objeto que deseas enviar
-
-const allObj = {
-  storage,
-  db,
-  dataToSend,
-  storageRef,
-  imagesRef
-}
 
 /*
 await fetch(url, {
@@ -121,10 +113,7 @@ listAll(imagesRef)
 // Find all the prefixes and items.
 let arr = await listAll(imagesRef)
   .then((res) => {
-    //console.log(res)
-    
-    //console.log(res)
-    fetch(url, {
+    return fetch(url, {
       method: 'POST', // Especificamos que la solicitud será de tipo POST
       headers: {
         'Content-Type': 'application/json', // Indicamos que el cuerpo de la solicitud es JSON
@@ -138,19 +127,23 @@ let arr = await listAll(imagesRef)
         return response.text();
       })
       .then(data => {
-        console.log(data); 
-        let temp = data
-        return temp
+        //console.log(data); 
+        return data;
+        
       })
       .catch(error => {
-        //console.error('Error:', error);
+        console.error('Error:', error);
       });
   })
   .catch((error) => {
     console.log('Error al listar archivos:', error);
   });
 
+
+
 console.log(arr)  
+
+console.log(JSON.parse(arr))
 
 export {
   firebaseApp,

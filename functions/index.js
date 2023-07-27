@@ -29,29 +29,28 @@ exports.getAllFiles = functions.https.onRequest((request, response) => {
         const bucketName = 'gabriellab-876b3.appspot.com';
 
         let arrUrl = [];
+        let arrNames = []
 
         res.items.forEach((itemRef) => {
-            //console.log('Nombre del archivo:', itemRef.name);
-            console.log(Object.keys(itemRef))
-            console.log(itemRef["_location"]['path_'])
             // Obtener la ruta del archivo (ubicación en el bucket)
             const fileName = itemRef["_location"]['path_'];
             const cleanedFileName = fileName.replace('imagenes/', '');
-            const tokenFile = "1"
 
             // Construir la URL de descarga utilizando el emulador de Firebase Storage
             //const downloadURL = `${functionsEmulatorURL}${bucketName}/o/imagenes%2F${cleanedFileName}?alt=madia&token=${tokenFile}`;
             const downloadURL = `${functionsEmulatorURL}${bucketName}/o/imagenes%2F${cleanedFileName}`;
-            console.log('URL de la imagen:', downloadURL);
-            arrUrl.push(downloadURL)
-      
-            // Aquí puedes usar la downloadURL para mostrar la imagen en una etiqueta <img> o para otras operaciones
+            //console.log('URL de la imagen:', downloadURL);
+
+            // Lleno arreglos
+            arrUrl.push(downloadURL);
+            arrNames.push(fileName)
+
           });
         
         
         functions.logger.info("Hello logs!", { structuredData: true });
         //response.send(`${JSON.stringify(res)}`);
-        response.send(arrUrl);
+        response.send(`${JSON.stringify({arrUrl, arrNames})}`);
     });
   });
 // Funcion que consulta todos los elementos en el directorio de un bucket, retorna arreglo con objetos
