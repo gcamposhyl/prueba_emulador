@@ -49,7 +49,7 @@ if(isFetched){
 
 // Con esto me conecto a emulador firestore
 if (location.hostname === 'localhost'){
-    console.log("aqui necesito detectar que quiero cambiar a emulador")
+    console.log("aqui necesito detectar que quiero cambiar a emulador!!!!!!!!!!!!")
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
 }
 

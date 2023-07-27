@@ -9,6 +9,7 @@ async function getCities() {
         //const citiesCol = collection(db, 'cities');
     console.log("0")
     const citiesCol = collection(db, 'ciudades');
+    console.log("fff", citiesCol);
     console.log("1")
     const citySnapshot = await getDocs(citiesCol);
     console.log("2")
