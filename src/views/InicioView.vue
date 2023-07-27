@@ -1,6 +1,19 @@
 <script setup>
   import { RouterLink, RouterView } from 'vue-router'
+  import {onMounted, ref} from 'vue'
+  import {remoteConfig} from '../stores/remote_config'
 
+  const remote = remoteConfig()
+  const empresa = ref("")
+  const descripcion = ref("")
+  // const nombreEmpresa = config.nombreEmpresa
+  // console.log(nombreEmpresa);
+
+  onMounted(() => {
+    remote.getConfig()
+    empresa.value = remote.nombreEmpresa
+    descripcion.value = remote.descripcion
+  })
 
 
 
@@ -9,14 +22,10 @@
 <template>
   <!-- Navegacion -->
   
-   <div>
+   <div class="informacion">
+    <h1>{{empresa}}</h1>
       <p>
-        Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el 
-        texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta)
-         desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, 
-         sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s
-          con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por 
-          ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.
+        {{descripcion}}
       </p>
    </div>
   <!-- <div>
@@ -27,6 +36,8 @@
 </template>
 
 <style>
-
+  .informacion {
+    text-align: center;
+  }
 </style>
 

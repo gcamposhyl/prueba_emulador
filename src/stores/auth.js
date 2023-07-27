@@ -1,5 +1,5 @@
-import { ref, reactive, onMounted, computed } from 'vue'
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, signInAnonymously  } from 'firebase/auth'
 import { defineStore } from 'pinia'
 import { useFirebaseAuth} from 'vuefire'
 import {useRouter} from 'vue-router'
@@ -18,6 +18,7 @@ export const usersStore = defineStore('users', () => {
     })
 
     const errorMsg = ref('')
+    
     const errorCodes = {
         'auth/user-not-found' : 'Usuario no encontrado',
         'auth/wrong-password' : 'El password es incorrecto'
@@ -25,12 +26,13 @@ export const usersStore = defineStore('users', () => {
 
     onMounted(() => {
         onAuthStateChanged(authFire, (user) => {
-            console.log("Estado de usuario logiado");
             userLogin.value = user
             console.log(userLogin.value);
 
         })
     })
+
+    
 
     //Iniciar sesion con login 
     function loginUser() {
@@ -42,8 +44,9 @@ export const usersStore = defineStore('users', () => {
                 router.push({name: 'tus-archivos'})
                 
             })
-            .catch(error => {
-                console.log(error)
+            .catch((error) => {
+                errorMsg.value = errorCodes[error.code]
+                //console.log(errorMsg.value);
                 
             })
     }
@@ -88,12 +91,30 @@ export const usersStore = defineStore('users', () => {
     }
 
 
+
+    //Login de forma anonima
+    const iniciarSesionAnonimamente = () => {
+        signInAnonymously(authFire)
+        .then(() => {
+            router.push({name: 'tus-archivos'})
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // ...
+        });
+
+    }
+            
+
     return {
         user,
         userLogin,
+        errorMsg,
         loginUser,
         logout,
-        iniciarSesionConGoogle
+        iniciarSesionConGoogle,
+        iniciarSesionAnonimamente
     }
 
 })
