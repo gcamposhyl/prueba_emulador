@@ -15,18 +15,47 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
       response.send(`Hello, ${name}, from Firebase!, obj: ${JSON.stringify(data['storage'])}`);
     });
   });
+
   
 
 
 // Functions storage
+exports.getAllFiles = functions.https.onRequest((request, response) => {
+    cors(request, response, () => {
+        const name = request.query.name || 'Anonymous'; // Obtener el parámetro "name" de la consulta
+        const res = request.body; // Obtener el objeto enviado en el cuerpo de la solicitud
+        
+        const functionsEmulatorURL = 'http://127.0.0.1:9199/v0/b/';
+        const bucketName = 'gabriellab-876b3.appspot.com';
 
+        let arrUrl = [];
+
+        res.items.forEach((itemRef) => {
+            //console.log('Nombre del archivo:', itemRef.name);
+            console.log(Object.keys(itemRef))
+            console.log(itemRef["_location"]['path_'])
+            // Obtener la ruta del archivo (ubicación en el bucket)
+            const fileName = itemRef["_location"]['path_'];
+            const cleanedFileName = fileName.replace('imagenes/', '');
+            const tokenFile = "1"
+
+            // Construir la URL de descarga utilizando el emulador de Firebase Storage
+            //const downloadURL = `${functionsEmulatorURL}${bucketName}/o/imagenes%2F${cleanedFileName}?alt=madia&token=${tokenFile}`;
+            const downloadURL = `${functionsEmulatorURL}${bucketName}/o/imagenes%2F${cleanedFileName}`;
+            console.log('URL de la imagen:', downloadURL);
+            arrUrl.push(downloadURL)
+      
+            // Aquí puedes usar la downloadURL para mostrar la imagen en una etiqueta <img> o para otras operaciones
+          });
+        
+        
+        functions.logger.info("Hello logs!", { structuredData: true });
+        //response.send(`${JSON.stringify(res)}`);
+        response.send(arrUrl);
+    });
+  });
 // Funcion que consulta todos los elementos en el directorio de un bucket, retorna arreglo con objetos
-/*exports.getAllFiles = functions.https.onRequest((request, response) => {
-    cors(request, request, () => {
-        const storageRef = ref(storage);
-        const imagesRef = ref(storage, 'imagenes');
-    })
-})*/
+
 
 
 // Funcion para guardar imagen, retorna url de imagen guardada

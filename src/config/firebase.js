@@ -51,21 +51,21 @@ if(isFetched){
 // Create a storage reference from our storage service
 const storageRef = ref(storage);
 const imagesRef = ref(storage, 'imagenes');
-console.log(storageRef)
-console.log(imagesRef)
-
 
 //Ejemplo consumir function en emulador
 const name = "Gabrielca"; // Cambia el nombre aquí
-const url = `http://127.0.0.1:5001/gabriellab-876b3/us-central1/helloWorld?name=${encodeURIComponent(name)}`;
+const url = `http://127.0.0.1:5001/gabriellab-876b3/us-central1/getAllFiles?name=${encodeURIComponent(name)}`;
 const dataToSend = { key1: 'value1', key2: 'value2' }; // El objeto que deseas enviar
 
 const allObj = {
-  "storage": storage,
-  "firestore": db,
-  "dataToSend": dataToSend
+  storage,
+  db,
+  dataToSend,
+  storageRef,
+  imagesRef
 }
 
+/*
 await fetch(url, {
   method: 'POST', // Especificamos que la solicitud será de tipo POST
   headers: {
@@ -75,19 +75,23 @@ await fetch(url, {
 })
   .then(response => {
     if (!response.ok) {
+      console.log("!!!!!!!!!!!!!!!")
       throw new Error('Network response was not ok');
     }
     return response.text();
   })
-  .then(data => {
-    console.log(data); // Imprime "Hello, Gabriella, from Firebase!" en la consola
+  .then(dataObj => {
+    console.log("!!!!!!!!!!!!!!!")
+    console.log(dataObj); // Imprime "Hello, Gabrielca, from Firebase!" en la consola
   })
   .catch(error => {
     console.error('Error:', error);
   });
- 
+*/
 
-// Find all the prefixes and items.
+//http://127.0.0.1:9199/v0/b/gabriellab-876b3.appspot.com/o/imagenes%2Flogo.svg?alt=media&token=f84cc949-4dea-4fa7-a021-376dc91dda6e
+//http://127.0.0.1:9199/v0/b/gabriellab-876b3.appspot.com/o/imagenes%2Flogo.svg?alt=madia&token=f84cc949-4dea-4fa7-a021-376dc91dda6e
+/*
 listAll(imagesRef)
   .then((res) => {
     res.prefixes.forEach((folderRef) => {
@@ -95,7 +99,7 @@ listAll(imagesRef)
       // Puedes llamar listAll() recursivamente en folderRef para obtener archivos dentro de esta carpeta.
     });
     res.items.forEach((itemRef) => {
-      console.log('Nombre del archivo:', itemRef.name);
+      //console.log('Nombre del archivo:', itemRef.name);
       // Obtener la URL de descarga de la imagen
       getDownloadURL(itemRef)
         .then((url) => {
@@ -103,14 +107,50 @@ listAll(imagesRef)
           // Aquí puedes usar la URL para mostrar la imagen en una etiqueta <img> o para otras operaciones
         })
         .catch((error) => {
-          console.error('Error al obtener la URL de la imagen:', error);
+          //console.error('Error al obtener la URL de la imagen:', error);
         });
     });
+    
+  })
+  .catch((error) => {
+    //console.log('Error al listar archivos:', error);
+  });
+*/
+ 
+
+// Find all the prefixes and items.
+let arr = await listAll(imagesRef)
+  .then((res) => {
+    //console.log(res)
+    
+    //console.log(res)
+    fetch(url, {
+      method: 'POST', // Especificamos que la solicitud será de tipo POST
+      headers: {
+        'Content-Type': 'application/json', // Indicamos que el cuerpo de la solicitud es JSON
+      },
+      body: JSON.stringify(res), // Convertimos el objeto a formato JSON para enviarlo en el cuerpo
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        console.log(data); 
+        let temp = data
+        return temp
+      })
+      .catch(error => {
+        //console.error('Error:', error);
+      });
   })
   .catch((error) => {
     console.log('Error al listar archivos:', error);
   });
 
+console.log(arr)  
 
 export {
   firebaseApp,
