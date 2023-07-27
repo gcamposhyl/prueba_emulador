@@ -1,8 +1,15 @@
 <script setup>
+  import {onMounted} from 'vue'
 import { RouterView, RouterLink } from 'vue-router'
 import { usersStore } from './stores/auth'
+  import {remoteConfig} from './stores/remote_config'
 
 const user = usersStore()
+  // const remote = remoteConfig()
+  
+  // onMounted(() => {
+  //   remote.getConfig()
+  // })
 
 </script>
 
@@ -26,20 +33,10 @@ const user = usersStore()
       <li>
         <RouterLink class="router" :to="{ name: 'login' }">
 
-          Login
+          Iniciar Session
         </RouterLink>
       </li>
-      <li>
-        <RouterLink class="router" :to="{ name: 'registro' }">
-
-          Register
-        </RouterLink>
-      </li>
-
-
-      <li>
-
-      </li>
+      
     </ul>
   </nav>
 

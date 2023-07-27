@@ -27,12 +27,12 @@ remoteConfig.settings.minimumFetchIntervalMillis = 36000;
 // Con este obtengo parametros de config
 const isFetched = await fetchAndActivate(remoteConfig);
 if(isFetched){
-    console.log("entro if")
+    
     let test = getValue(remoteConfig, "abc")
     console.log(test)
 } else {
     let test = getValue(remoteConfig, "abc")
-    console.log("entro else")
+    
     console.log(test)
 }
 
@@ -49,7 +49,7 @@ if(isFetched){
 
 // Con esto me conecto a emulador firestore
 if (location.hostname === 'localhost'){
-    console.log("aqui necesito detectar que quiero cambiar a emulador!!!!!!!!!!!!")
+    
     connectFirestoreEmulator(db, '127.0.0.1', 8080);
 }
 
