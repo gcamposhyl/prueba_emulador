@@ -8,6 +8,7 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 
 import { getStorage, connectStorageEmulator, ref, listAll, getDownloadURL  } from "firebase/storage";
+import { async } from '@firebase/util';
 
 
 let firebaseConfig = {
@@ -51,11 +52,15 @@ if(isFetched){
 // Create a storage reference from our storage service
 //const storageRef = ref(storage);
 const imagesRef = ref(storage, 'imagenes');
+function refFile(path){
+  return ref(storage, path);
+}
+
+
 
 //Ejemplo consumir function en emulador
 const name = "Gabrielca"; // Cambia el nombre aquí
 const url = `http://127.0.0.1:5001/gabriellab-876b3/us-central1/getAllFiles?name=${encodeURIComponent(name)}`;
-const dataToSend = { key1: 'value1', key2: 'value2' }; // El objeto que deseas enviar
 
 /*
 await fetch(url, {
@@ -111,7 +116,8 @@ listAll(imagesRef)
  
 
 // Find all the prefixes and items.
-let arr = await listAll(imagesRef)
+/*
+let arr = await listAll(refFile('imagenes'))
   .then((res) => {
     return fetch(url, {
       method: 'POST', // Especificamos que la solicitud será de tipo POST
@@ -139,16 +145,113 @@ let arr = await listAll(imagesRef)
     console.log('Error al listar archivos:', error);
   });
 
-
-
-console.log(arr)  
-
 console.log(JSON.parse(arr))
+*/
+//console.log(JSON.parse(arr)['arrUrl'][0])
+
+function listAllFiles (path){
+  //listAll(refFile('imagenes'))
+  return listAll(refFile(path))
+  .then((res) => {
+    return fetch(url, {
+      method: 'POST', // Especificamos que la solicitud será de tipo POST
+      headers: {
+        'Content-Type': 'application/json', // Indicamos que el cuerpo de la solicitud es JSON
+      },
+      body: JSON.stringify(res), // Convertimos el objeto a formato JSON para enviarlo en el cuerpo
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(data => {
+        //console.log(data); 
+        return data;
+        
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  })
+  .catch((error) => {
+    console.log('Error al listar archivos:', error);
+  }); 
+}
+
+//let arr = await listAllFiles('imagenes')
+//console.log(arr)
+
+
+//const jsonUrl = JSON.parse(arr)['arrUrl'][0]
+//console.log(JSON.parse(arr)['arrUrl'][0])
+// Función para obtener los datos y guardarlos en una variable
+async function getTokenFile(jsonUrl) {
+  try {
+    // Obtener la respuesta de la URL
+    const response = await fetch(jsonUrl);
+
+    // Extraer los datos del JSON
+    const jsonData = await response.json();
+
+    // Guardar los datos en una variable
+    const variableGuardada = jsonData;
+
+    // Hacer lo que necesites con la variableGuardada
+    //console.log(variableGuardada);
+
+    const token = variableGuardada['downloadTokens']
+
+    //console.log(token)
+
+    return token;
+
+  } catch (error) {
+    console.error("Error al obtener los datos:", error);
+  }
+}
+
+// URL del JSON
+const jsonUrl = "http://127.0.0.1:9199/v0/b/gabriellab-876b3.appspot.com/o/imagenes%2FCEGARS14_TareaS4_GabrielCampos_MarceloFernandez_RodolfoGuzman_VanessaMoris_PabloOlea.pdf";
+// Llamar a la función para obtener los datos
+//getTokenFile(jsonUrl);
+
+
+const urlFirestore = `http://127.0.0.1:5001/gabriellab-876b3/us-central1/setCol`;
+
+async function setColFirestore(){
+  return fetch(urlFirestore, {
+    method: 'POST', // Especificamos que la solicitud será de tipo POST
+    headers: {
+      'Content-Type': 'application/json', // Indicamos que el cuerpo de la solicitud es JSON
+    },
+    body: JSON.stringify(db), // Convertimos el objeto a formato JSON para enviarlo en el cuerpo
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.text();
+    })
+    .then(data => {
+      //console.log(data); 
+      return data;
+      
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+console.log("hola", await setColFirestore())
 
 export {
   firebaseApp,
   db,
   functions,
-  storage
+  storage,
+  refFile,
+  listAllFiles
 }
 
