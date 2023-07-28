@@ -1,9 +1,8 @@
 <script setup>
-import { usersStore } from '../stores/auth'
 import UploadView from './UploadView.vue';
 
 const FilesLocalStorage = JSON.parse(localStorage.getItem('myFiles')) ?? []
-console.log(FilesLocalStorage)
+//console.log(FilesLocalStorage)
 </script>
 
 <template>
@@ -11,13 +10,13 @@ console.log(FilesLocalStorage)
         <h1 class="my-files-title">Subir Archivo</h1>
         <UploadView />
     </div>
-    <h1 class="my-files-title">Tus archivos</h1>
+    <h1 class="my-files-title"> </h1>
     <div class="content-files">
         
         <div v-for="file in FilesLocalStorage" class="my-files">
             <div class="my-file">
                 <img src="../../public/img/pdfIcon.png" width="60" height="60">
-                <p>{{ file }}</p>
+                <p>{{  }}</p>
             </div>
 
         </div>

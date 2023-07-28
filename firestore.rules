@@ -1,10 +1,9 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Regla que permite el acceso de lectura a todas las colecciones y documentos
+    // Regla que permite el acceso de lectura y escritura a todas las colecciones y documentos
     match /{document=**} {
-      allow read;
-      allow write: if false; // Para bloquear la escritura en todas las colecciones y documentos
+      allow read, write: if true; // Permitir tanto lectura como escritura
     }
   }
 }

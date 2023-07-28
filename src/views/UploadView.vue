@@ -1,38 +1,39 @@
 
 <script setup >
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted} from 'vue';
+
+import { listAllFiles, refFile, db } from '../config/firebase'
+import { doc, setDoc  } from 'firebase/firestore'
+import {  uploadBytes } from "firebase/storage";
 
 const selectedFile = ref(null);
 const filePreviewUrl = ref(null);
-const myFiles = ref([])
+const allFiles = ref([]);
 
-onMounted(() => {
-        myFiles.value = JSON.parse(localStorage.getItem('myFiles')) ?? []
-    })
-
-watch(myFiles, () => {
-        sincronizarLocalStorage()
-    }, {
-        deep: true
-    })
-
-function sincronizarLocalStorage() {
-    localStorage.setItem('myFiles', JSON.stringify(myFiles.value))
-}
+onMounted(async () => {
+  const arr = await listAllFiles('imagenes');
+  allFiles.value = JSON.parse(arr)['arrNames'];
+})
 
 const previewFile = (event) => {
     selectedFile.value = event.target.files[0];
     generatePreview();
 }
 
-
-const onUpload = () => {
+const onUpload = async () => {
     if (selectedFile.value) {
-        // Access the file using selectedFile.value
-        console.log("Selected file:", selectedFile.value);
-        
+      const name = selectedFile.value['name'];
+      //Guardar en storage
+      uploadBytes(refFile(`imagenes/${name}`), selectedFile.value).then(async (snapshot) => {
+        console.log('Uploaded a blob or file!');
         // Agregar a localStorage
-        myFiles.value.push(selectedFile.value.name)
+        const arr = await listAllFiles('imagenes');
+
+        allFiles.value = JSON.parse(arr)['arrNames'];
+
+        // Guardo en firestore (pero no retorna)
+        await setDoc(doc(db, "pdfFiles", "referencias"), JSON.parse(arr));
+      });        
     } else {
         console.log("No file selected");
     }
@@ -72,6 +73,21 @@ const generatePreview = function () {
             <input type="file" id="upload" name="upload" accept="application/pdf" @change="previewFile">
         </div>
 
+    </div>
+
+    <h1 class="my-files-title">Tus archivos</h1>
+    <div class="content-files">
+        
+        <div 
+        v-if="allFiles"
+        v-for="file in allFiles" class="my-files"
+        >
+            <div class="my-file">
+                <img src="../../public/img/pdfIcon.png" width="60" height="60">
+                <p class="descargar-archivo" @click="">{{ file }}</p>
+            </div>
+
+        </div>
     </div>
 </template>
 
@@ -155,5 +171,43 @@ button {
 embed {
     border: 1px solid #ddd;
     border-radius: 10px;
+}
+
+
+.descargar-archivo{
+cursor:pointer
+}
+
+.my-files-title {
+    font-size: 22px;
+}
+
+.content-files{
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+}
+
+.my-file {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 150px;
+}
+
+.my-files {
+    display: flex;
+    width: 190px;
+    height: 120px;
+    border: solid 2px;
+    border-radius: 20px;
+    margin: 20px;
+    background-color: rgb(255, 250, 235);
+    flex-direction: row;
+    font-size: 10px;
+    justify-content: center;
+    align-items: center;
 }
 </style>

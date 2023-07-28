@@ -27,7 +27,7 @@ export const usersStore = defineStore('users', () => {
     onMounted(() => {
         onAuthStateChanged(authFire, (user) => {
             userLogin.value = user
-            console.log(userLogin.value);
+            //console.log(userLogin.value);
 
         })
     })
@@ -40,7 +40,7 @@ export const usersStore = defineStore('users', () => {
         signInWithEmailAndPassword(authFire, user.email, user.password)
             .then( (userCredential) => {
                 const user = userCredential.user
-                console.log(user);
+                //console.log(user);
                 router.push({name: 'tus-archivos'})
                 
             })
@@ -67,7 +67,7 @@ export const usersStore = defineStore('users', () => {
 
     const iniciarSesionConGoogle = () => {
         const provider = new GoogleAuthProvider();
-        console.log(provider);
+        //console.log(provider);
         signInWithPopup(authFire, provider) 
             .then((result) => {
                 // This gives you a Google Access Token. You can use it to access the Google API.
