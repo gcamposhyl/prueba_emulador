@@ -2,7 +2,6 @@
 import UploadView from './UploadView.vue';
 
 const FilesLocalStorage = JSON.parse(localStorage.getItem('myFiles')) ?? []
-//console.log(FilesLocalStorage)
 </script>
 
 <template>

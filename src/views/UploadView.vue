@@ -1,9 +1,8 @@
-
 <script setup >
 import { ref, onMounted} from 'vue';
-
-import { listAllFiles, refFile, db } from '../config/firebase'
-import { doc, setDoc  } from 'firebase/firestore'
+import { db } from '../config/firebase'
+import { listAllFiles, getTokenFile, refFile } from '../components/composables/useStorage'
+import { doc, setDoc, getDoc  } from 'firebase/firestore'
 import {  uploadBytes } from "firebase/storage";
 
 const selectedFile = ref(null);
@@ -11,8 +10,9 @@ const filePreviewUrl = ref(null);
 const allFiles = ref([]);
 
 onMounted(async () => {
-  const arr = await listAllFiles('imagenes');
-  allFiles.value = JSON.parse(arr)['arrNames'];
+    const docRef = doc(db, "pdfFiles", "referencias");
+    const docSnap = await getDoc(docRef);
+    allFiles.value = docSnap.data();
 })
 
 const previewFile = (event) => {
@@ -21,24 +21,38 @@ const previewFile = (event) => {
 }
 
 const onUpload = async () => {
-    if (selectedFile.value) {
-      const name = selectedFile.value['name'];
-      //Guardar en storage
-      uploadBytes(refFile(`imagenes/${name}`), selectedFile.value).then(async (snapshot) => {
-        console.log('Uploaded a blob or file!');
-        // Agregar a localStorage
-        const arr = await listAllFiles('imagenes');
+  if (selectedFile.value) {
+    const name = selectedFile.value['name'];
+    //Guardar en storage
+    uploadBytes(refFile(`imagenes/${name}`), selectedFile.value)
+        .then(async () => {
+            const obj = await listAllFiles('imagenes');
+            let parsedObj = JSON.parse(obj);
 
-        allFiles.value = JSON.parse(arr)['arrNames'];
+            for (const key of Object.keys(parsedObj)) {
+                let nameFile = parsedObj[key]['fileName'];
+                let shortUrl = parsedObj[key]['downloadURL'];
+                let token = await getTokenFile(shortUrl);
+                let wholeUrl = `${shortUrl}?alt=media&token=${token}`;
 
-        // Guardo en firestore (pero no retorna)
-        await setDoc(doc(db, "pdfFiles", "referencias"), JSON.parse(arr));
-      });        
-    } else {
-        console.log("No file selected");
-    }
+                parsedObj[key] = {
+                nameFile,
+                wholeUrl
+                };
+            }
+            // Guardo en firestore
+            await setDoc(doc(db, "pdfFiles", "referencias"), parsedObj);
+            allFiles.value = parsedObj;
+            });
+  } 
+};
+
+//Abre archivo en navegador
+const openFile = function (url) {
+    window.open(url, '_blank');
 }
 
+//Genera previsualkización del archivo
 const generatePreview = function () {
     if (selectedFile.value) {
         const reader = new FileReader();
@@ -51,7 +65,6 @@ const generatePreview = function () {
         reader.readAsDataURL(selectedFile.value);
     }
 };
-
 
 </script>
 
@@ -72,23 +85,39 @@ const generatePreview = function () {
             <label class="" for="upload">Drag and Drop Here</label>
             <input type="file" id="upload" name="upload" accept="application/pdf" @change="previewFile">
         </div>
-
     </div>
 
-    <h1 class="my-files-title">Tus archivos</h1>
-    <div class="content-files">
-        
-        <div 
-        v-if="allFiles"
-        v-for="file in allFiles" class="my-files"
-        >
-            <div class="my-file">
-                <img src="../../public/img/pdfIcon.png" width="60" height="60">
-                <p class="descargar-archivo" @click="">{{ file }}</p>
-            </div>
+    <div
+    v-if="allFiles"
+    >
+        <h1 class="my-files-title">Tus archivos</h1>
+        <div class="content-files">
+            
+            <div 
+            
+            v-for="file in allFiles" class="my-files"
+            >
+                <div class="my-file">
+                    <img 
+                        src="../../public/img/pdfIcon.png" 
+                        width="60" 
+                        height="60"
+                        @click="openFile(file['wholeUrl'])"
+                        style="cursor: pointer;"
+                    >
+                    <p 
+                        class="descargar-archivo" 
+                        @click="openFile(file['wholeUrl'])"
+                    >{{ file['nameFile'].replace(/%20/g, ' ').replace(/imagenes\//g, '').slice(0,20) + "..."  }}</p>
+                </div>
 
+            </div>
         </div>
     </div>
+    <h1
+        class="not-files-title"
+        v-else
+    >Sin archivos</h1>
 </template>
 
 
@@ -174,12 +203,33 @@ embed {
 }
 
 
+
+
+
+.not-files-title {
+  display: flex;
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Centrar verticalmente */
+  height: 100px; /* Ajusta la altura según tus necesidades */
+  width: 100%; /* Ajusta el ancho según tus necesidades */
+  /* Otros estilos opcionales para el contenedor */
+  border: 1px solid #ccc;
+  background-color: #f7f7f7;
+}
 .descargar-archivo{
 cursor:pointer
 }
 
 .my-files-title {
     font-size: 22px;
+    display: flex;
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+    height: 100px; /* Ajusta la altura según tus necesidades */
+    width: 100%; /* Ajusta el ancho según tus necesidades */
+    /* Otros estilos opcionales para el contenedor */
+    border: 1px solid #ccc;
+    background-color: #f7f7f7;
 }
 
 .content-files{
